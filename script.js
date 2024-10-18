@@ -16,8 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Convert the sheet to JSON
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-    // Skip the header row and process the data
-    questions = jsonData.slice(1).map((row) => ({
+    // Skip the header row and process the data, filtering out empty rows
+    questions = jsonData.slice(1).filter(row => row.some(cell => cell !== undefined)).map((row) => ({
       description: row[0],
       choices: [row[1], row[2], row[3], row[4]],
       correctAnswer: row[5],
