@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Read the header row to determine column names
       const headerRow = jsonData[0];
-      const tagIndex = headerRow.indexOf("Tag");
+      const correctAnswerIndex = headerRow.indexOf("Correct Answer-1");
 
       // Skip the header row and process the data, filtering out empty rows
       const fileQuestions = jsonData
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .map((row) => {
           const description = row[1];
           const choices = row.slice(2, 7);
-          const correctAnswer = tagIndex !== -1 ? row[7] : row[7];
+          const correctAnswer = row[correctAnswerIndex];
           return { description, choices, correctAnswer };
         });
 
