@@ -19,6 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // Convert the sheet to JSON
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
+      // Read the header row to determine column names
+      const headerRow = jsonData[0];
+      const tagIndex = headerRow.indexOf("Tag");
+
       // Skip the header row and process the data, filtering out empty rows
       const fileQuestions = jsonData
         .slice(1)
@@ -26,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .map((row) => {
           const description = row[1];
           const choices = row.slice(2, 7);
-          const correctAnswer = row[7];
+          const correctAnswer = tagIndex !== -1 ? row[7] : row[7];
           return { description, choices, correctAnswer };
         });
 
