@@ -2,28 +2,56 @@ document.addEventListener("DOMContentLoaded", () => {
   const questionContainer = document.getElementById("question-container");
   let questions = [];
 
-  // Function to read XLSX file
-  async function readXLSX() {
-    const response = await fetch("questions.xlsx");
-    const arrayBuffer = await response.arrayBuffer();
-    const data = new Uint8Array(arrayBuffer);
-    const workbook = XLSX.read(data, { type: "array" });
+  // Function to read XLSX files
+  async function readXLSXFiles() {
+    const filePattern = "*_questions.xlsx"; // Adjust the pattern as needed
+    const files = await fetchFiles(filePattern);
 
-    // Assume the first sheet is the one we want
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
+    for (const file of files) {
+      const arrayBuffer = await file.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      const workbook = XLSX.read(data, { type: "array" });
 
-    // Convert the sheet to JSON
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      // Assume the first sheet is the one we want
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
 
-    // Skip the header row and process the data, filtering out empty rows
-    questions = jsonData.slice(1).filter(row => row.some(cell => cell !== undefined)).map((row) => ({
-      description: row[0],
-      choices: [row[1], row[2], row[3], row[4]],
-      correctAnswer: row[5],
-    }));
+      // Convert the sheet to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      // Skip the header row and process the data, filtering out empty rows
+      const fileQuestions = jsonData
+        .slice(1)
+        .filter((row) => row.some((cell) => cell !== undefined))
+        .map((row) => {
+          const description = row[1];
+          const choices = row.slice(2, 7);
+          const correctAnswer = row[7];
+          return { description, choices, correctAnswer };
+        });
+
+      questions = questions.concat(fileQuestions);
+    }
 
     displayQuestions();
+  }
+
+  // Function to fetch files based on a pattern
+  async function fetchFiles(pattern) {
+    // This is a placeholder function. You need to implement the logic to fetch files based on the pattern.
+    // For example, you can use a server-side script to list files matching the pattern and return them.
+    // Here, we'll assume you have a predefined list of files.
+    const fileNames = [
+      "1_questions.xlsx",
+      "2_questions.xlsx",
+      "3_questions.xlsx",
+      "4_questions.xlsx",
+      "5_questions.xlsx",
+    ]; // Add more file names as needed
+    const files = await Promise.all(
+      fileNames.map((fileName) => fetch(fileName))
+    );
+    return files;
   }
 
   // Function to display questions
@@ -37,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ${q.choices
             .map(
               (choice, i) => `
-              <div class="choice">${i + 1}. ${choice}</div>
+              <div class="choice">${i + 1}. ${choice || ""}</div>
             `
             )
             .join("")}
@@ -65,6 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Load questions from XLSX
-  readXLSX();
+  // Load questions from XLSX files
+  readXLSXFiles();
 });
