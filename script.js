@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .filter((row) => row.some((cell) => cell !== undefined))
         .map((row) => {
           const description = row[1];
-          const choices = row.slice(2, 7);
+          const choices = row.slice(2, correctAnswerIndex);
           const correctAnswer = row[correctAnswerIndex];
           return { description, choices, correctAnswer };
         });
